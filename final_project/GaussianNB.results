@@ -1,0 +1,4 @@
+GaussianNB(priors=None, var_smoothing=1e-09)
+	Accuracy: 0.62266	Precision: 0.15323	Recall: 0.26260	F1: 0.19353	F2: 0.22979
+	Total predictions: 29000	True positives: 1313	False positives: 7256	False negatives: 3687	True negatives: 16744
+
