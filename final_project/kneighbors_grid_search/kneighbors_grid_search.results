@@ -1,0 +1,6 @@
+KNeighborsClassifier(algorithm='auto', leaf_size=1, metric='cityblock',
+           metric_params=None, n_jobs=2, n_neighbors=5, p=2,
+           weights='uniform')
+	Accuracy: 0.83826	Precision: 0.41032	Recall: 0.05567	F1: 0.09803	F2: 0.06730
+	Total predictions: 38000	True positives:  334	False positives:  480	False negatives: 5666	True negatives: 31520
+
