@@ -150,7 +150,7 @@ def is_poi(possible_poi):
  
 process_emails()            
 
-my_dataset = data_dict
+my_dataset = data_dictc
 
 
 ### Extract features and labels from dataset for local testing
@@ -177,8 +177,9 @@ features_list = ['poi'] + k_best_features.keys()
 ### http://scikit-learn.org/stable/modules/pipeline.html
 
 # Provided to give you a starting point. Try a variety of classifiers.
-from sklearn.linear_model import LogisticRegression
-clf = LogisticRegression()
+from sklearn.neighbors import KNeighborsClassifier
+clf = KNeighborsClassifier(n_jobs=2)
+
 
 ### Task 5: Tune your classifier to achieve better than .3 precision and recall 
 ### using our testing script. Check the tester.py script in the final project
@@ -197,31 +198,23 @@ from sklearn.model_selection import GridSearchCV
 import numpy as np
 import time
 
-params = { "penalty": ["l2"],
-           "solver": ["newton-cg"],
-           "C": np.logspace(-3,3,1),
-           "class_weight": ["balanced"],
-           "max_iter": np.arange(1,200,1)
+params = {"n_neighbors": np.arange(1, 40, 2),
+	      "metric": ["euclidean", "cityblock"],
+          "leaf_size": np.arange(1,20,2)
           }
 
-grid = GridSearchCV(clf, params, cv=3)
+grid = GridSearchCV(clf, params)
 start = time.time()
 grid.fit(features_train, labels_train)
-# calculate accuracy
+
+# calculate accuracy 
 acc = grid.score(features_test, labels_test)
+
 print("Grid search accuracy: {:.2f}%".format(acc * 100))
 print("Grid search best parameters: {}".format(grid.best_params_))
-print("Best Score: {}".format(grid.best_score_))
-hyperparameters = grid.best_params_
 
 # modify the classifier with the new params :) 
-# Best params 
-#  {'penalty': 'l2', 'C': 0.001, 'max_iter': 169, 'solver': 'newton-cg', 'class_weight': 'balanced'}
-
-clf = LogisticRegression(C=0.0001, class_weight='balanced', dual=False,
-          fit_intercept=True, intercept_scaling=1, max_iter=169,
-          multi_class='warn', n_jobs=None, penalty='l2', random_state=42,
-          solver='newton-cg', tol=0.0001, verbose=0, warm_start=False)
+clf = KNeighborsClassifier(n_neighbors=5, metric="euclidian", leaf_size=1)
 
 ### Task 6: Dump your classifier, dataset, and features_list so anyone can
 ### check your results. You do not need to change anything below, but make sure

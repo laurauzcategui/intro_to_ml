@@ -11,9 +11,7 @@ from tester import dump_classifier_and_data
 ### Task 1: Select what features you'll use.
 ### features_list is a list of strings, each of which is a feature name.
 ### The first feature must be "poi".
-features_list = ['poi','salary','bonus','long_term_incentive','loan_advances',
-                 'director_fees','from_poi_to_this_person',
-                 'from_this_person_to_poi', 'shared_receipt_with_poi', 'total_payments'] # You will need to use more features
+features_list = ['poi','salary','bonus','long_term_incentive','loan_advances','poi_deleted_emails'] # You will need to use more features
 
 ### Load the dictionary containing the dataset
 with open("final_project_dataset.pkl", "r") as data_file:
@@ -152,23 +150,9 @@ process_emails()
 
 my_dataset = data_dict
 
-
 ### Extract features and labels from dataset for local testing
 data = featureFormat(my_dataset, features_list, sort_keys = True)
 labels, features = targetFeatureSplit(data)
-
-### Adding Feature Selection with Select KBest
-from sklearn.feature_selection import SelectKBest, chi2
-sel_kbest = SelectKBest(score_func=chi2,k=5) # selector instance with chi2 metric
-sel_kbest.fit(features,labels) # calculating best five features
-
-scores = sel_kbest.scores_
-print(scores)
-unsorted_pairs = zip(features_list[1:], scores)
-sorted_pairs = list(reversed(sorted(unsorted_pairs, key=lambda x: x[1])))
-k_best_features = dict(sorted_pairs[:5])
-print "{0} best features: {1}\n".format(5, k_best_features.keys())
-features_list = ['poi'] + k_best_features.keys()
 
 ### Task 4: Try a varity of classifiers
 ### Please name your classifier clf for easy export below.
@@ -177,8 +161,9 @@ features_list = ['poi'] + k_best_features.keys()
 ### http://scikit-learn.org/stable/modules/pipeline.html
 
 # Provided to give you a starting point. Try a variety of classifiers.
-from sklearn.linear_model import LogisticRegression
-clf = LogisticRegression()
+from sklearn.neighbors import KNeighborsClassifier
+clf = KNeighborsClassifier(n_neighbors=3)
+
 
 ### Task 5: Tune your classifier to achieve better than .3 precision and recall 
 ### using our testing script. Check the tester.py script in the final project
@@ -191,37 +176,6 @@ clf = LogisticRegression()
 from sklearn.model_selection import train_test_split
 features_train, features_test, labels_train, labels_test = \
     train_test_split(features, labels, test_size=0.3, random_state=42)
-
-# Using GridSearchCV to do tuning Hyperparameter 
-from sklearn.model_selection import GridSearchCV
-import numpy as np
-import time
-
-params = { "penalty": ["l2"],
-           "solver": ["newton-cg"],
-           "C": np.logspace(-3,3,1),
-           "class_weight": ["balanced"],
-           "max_iter": np.arange(1,200,1)
-          }
-
-grid = GridSearchCV(clf, params, cv=3)
-start = time.time()
-grid.fit(features_train, labels_train)
-# calculate accuracy
-acc = grid.score(features_test, labels_test)
-print("Grid search accuracy: {:.2f}%".format(acc * 100))
-print("Grid search best parameters: {}".format(grid.best_params_))
-print("Best Score: {}".format(grid.best_score_))
-hyperparameters = grid.best_params_
-
-# modify the classifier with the new params :) 
-# Best params 
-#  {'penalty': 'l2', 'C': 0.001, 'max_iter': 169, 'solver': 'newton-cg', 'class_weight': 'balanced'}
-
-clf = LogisticRegression(C=0.0001, class_weight='balanced', dual=False,
-          fit_intercept=True, intercept_scaling=1, max_iter=169,
-          multi_class='warn', n_jobs=None, penalty='l2', random_state=42,
-          solver='newton-cg', tol=0.0001, verbose=0, warm_start=False)
 
 ### Task 6: Dump your classifier, dataset, and features_list so anyone can
 ### check your results. You do not need to change anything below, but make sure
